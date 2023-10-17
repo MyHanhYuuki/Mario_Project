@@ -6,8 +6,16 @@
 #include "Brick.h"
 #include "Mario.h"
 #include "Goomba.h"
+#include "tinyxml.h"
 //#include "Koopas.h"
 
+struct TileSet {
+	int spacing = 0;
+	int margin = 0;
+	int width = 0;
+	int height = 0;
+	int columns = 0;
+};
 
 class CPlayScene: public CScene
 {
@@ -21,9 +29,13 @@ protected:
 	void _ParseSection_ANIMATIONS(string line);
 
 	void _ParseSection_ASSETS(string line);
+	void _ParseSection_MAP(string line);
 	void _ParseSection_OBJECTS(string line);
 
 	void LoadAssets(LPCWSTR assetFile);
+	void ParseTile(TiXmlElement* root);
+	void LoadMap(string assetFile);
+	TileSet* LoadTileSet(TiXmlElement* root);
 	
 public: 
 	CPlayScene(int id, LPCWSTR filePath);
@@ -42,4 +54,3 @@ public:
 };
 
 typedef CPlayScene* LPPLAYSCENE;
-

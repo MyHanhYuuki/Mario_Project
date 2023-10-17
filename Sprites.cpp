@@ -1,7 +1,8 @@
-#include "Sprites.h"
+﻿#include "Sprites.h"
 #include "Game.h"
 #include "debug.h"
 
+// Thể hiện duy nhất của class để quản lý tất cả các sprites
 CSprites* CSprites::__instance = NULL;
 
 CSprites* CSprites::GetInstance()

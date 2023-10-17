@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include "AssetIDs.h"
 
@@ -9,6 +9,7 @@
 #include "Portal.h"
 #include "Coin.h"
 #include "Platform.h"
+#include "tinyxml.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -24,7 +25,8 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath):
 
 #define SCENE_SECTION_UNKNOWN -1
 #define SCENE_SECTION_ASSETS	1
-#define SCENE_SECTION_OBJECTS	2
+#define SCENE_SECTION_TILEMAP	2
+#define SCENE_SECTION_OBJECTS	3
 
 #define ASSETS_SECTION_UNKNOWN -1
 #define ASSETS_SECTION_SPRITES 1
@@ -64,6 +66,16 @@ void CPlayScene::_ParseSection_ASSETS(string line)
 	wstring path = ToWSTR(tokens[0]);
 	
 	LoadAssets(path.c_str());
+}
+
+// Đọc section [TILEMAP] trong file config (scene0005.txt)
+void CPlayScene::_ParseSection_MAP(string line)
+{
+	vector<string> tokens = split(line);
+
+	if (tokens.size() < 1) return;
+
+	LoadMap(tokens[0]);
 }
 
 void CPlayScene::_ParseSection_ANIMATIONS(string line)
@@ -196,6 +208,98 @@ void CPlayScene::LoadAssets(LPCWSTR assetFile)
 	DebugOut(L"[INFO] Done loading assets from %s\n", assetFile);
 }
 
+//Đọc file tmx (world-1-1.tmx) - load file Texture dùng trong TileMap
+
+TileSet* CPlayScene::LoadTileSet(TiXmlElement* root)
+{
+	// Lấy tên file tileset để mở file đó và lấy các thông tin cần thiết
+	TiXmlElement* element = root->FirstChildElement("tileset");
+	string imageSourcePath = element->Attribute("source");
+
+	TiXmlDocument imageRootNode(("scenes//" + imageSourcePath).c_str());
+	if (imageRootNode.LoadFile())
+	{
+		TiXmlElement* tileSetElement = imageRootNode.RootElement();
+
+		TileSet* tileSet = new TileSet();
+		tileSetElement->QueryIntAttribute("spacing", &tileSet->spacing);
+		tileSetElement->QueryIntAttribute("margin", &tileSet->margin);
+		tileSetElement->QueryIntAttribute("tilewidth", &tileSet->width);
+		tileSetElement->QueryIntAttribute("tileheight", &tileSet->height);
+		tileSetElement->QueryIntAttribute("columns", &tileSet->columns);
+
+		return tileSet;
+	}
+	return NULL;
+}
+
+// Load tag của layer vào grid 2D [width, heigth]
+void CPlayScene::ParseTile(TiXmlElement* root)
+{
+	TiXmlElement* layerElement = root->FirstChildElement("layer");
+
+	int visible;
+	layerElement->QueryIntAttribute("visible", &visible);
+	if (visible == 0) {
+		return;
+	}
+
+	int colCount, rowCount;
+	layerElement->QueryIntAttribute("width", &colCount);
+	layerElement->QueryIntAttribute("height", &rowCount);
+
+	string strTile = layerElement->FirstChildElement("data")->GetText();
+	vector<string> tileArr = split(strTile, ",");
+
+	// Điền vào grid theo trình tự: trái -> phải, trên -> dưới
+	vector<vector<int>> tileIDs(colCount, vector<int>(rowCount));
+	for (int col = 0; col < colCount; col++)
+	{
+		for (int row = 0; row < rowCount; row++)
+		{
+			tileIDs[col][row] = stoi(tileArr[int(col + (row * colCount))]);
+		}
+	}
+
+	// Clear data
+	tileArr.clear();
+
+	// Load tileset
+	TileSet* tileSet = LoadTileSet(root);
+	if (tileSet == NULL) {
+		DebugOut(L"[ERROR] fail to load tile set");
+		return;
+	}
+
+	// Add tile Object
+	int spacing = tileSet->spacing,
+		margin = tileSet->margin,
+		tileWidth = tileSet->width,
+		tileHeight = tileSet->height,
+		column = tileSet->columns;
+
+	CSprites* sprites = CSprites::GetInstance();
+	LPTEXTURE texMap = CTextures::GetInstance()->Get(ID_TEX_IMAGEMAP); //AssetID.h
+
+	//
+}
+
+
+void CPlayScene::LoadMap(string filePath)
+{
+	// Đọc file tml và tải vào bộ nhớ
+	TiXmlDocument doc(filePath.c_str()); 
+	if (!doc.LoadFile())
+	{
+		printf("%s", doc.ErrorDesc());
+		return;
+	}
+
+	// Đọc và khởi tạo tile object (backgroud, mây, cây,...)
+	auto root = doc.RootElement();
+	ParseTile(root);
+}
+
 void CPlayScene::Load()
 {
 	DebugOut(L"[INFO] Start loading scene from : %s \n", sceneFilePath);
@@ -213,6 +317,7 @@ void CPlayScene::Load()
 
 		if (line[0] == '#') continue;	// skip comment lines	
 		if (line == "[ASSETS]") { section = SCENE_SECTION_ASSETS; continue; };
+		if (line == "[TITLEMAP]") { section = SCENE_SECTION_TILEMAP; continue; };
 		if (line == "[OBJECTS]") { section = SCENE_SECTION_OBJECTS; continue; };
 		if (line[0] == '[') { section = SCENE_SECTION_UNKNOWN; continue; }	
 
@@ -222,6 +327,7 @@ void CPlayScene::Load()
 		switch (section)
 		{ 
 			case SCENE_SECTION_ASSETS: _ParseSection_ASSETS(line); break;
+			case SCENE_SECTION_TILEMAP: _ParseSection_MAP(line); break;
 			case SCENE_SECTION_OBJECTS: _ParseSection_OBJECTS(line); break;
 		}
 	}
