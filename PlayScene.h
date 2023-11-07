@@ -7,6 +7,7 @@
 #include "Mario.h"
 #include "Goomba.h"
 #include "tinyxml.h"
+#include "Tile.h"
 //#include "Koopas.h"
 
 struct TileSet {
@@ -24,6 +25,7 @@ protected:
 	LPGAMEOBJECT player;					
 
 	vector<LPGAMEOBJECT> objects;
+	vector<LPTILE> tiles;
 
 	void _ParseSection_SPRITES(string line);
 	void _ParseSection_ANIMATIONS(string line);

@@ -281,7 +281,44 @@ void CPlayScene::ParseTile(TiXmlElement* root)
 	CSprites* sprites = CSprites::GetInstance();
 	LPTEXTURE texMap = CTextures::GetInstance()->Get(ID_TEX_IMAGEMAP); //AssetID.h
 
-	//
+	int fistSpriteId = SPRITE_ID_START_TILEMAP;
+	//  Khởi tạo tile Object (vị trí, dài, rộng, thứ tự tile trong texture) theo vị trí tương ứng trong grid
+	for (int j = 0; j < tileIDs[0].size(); j++)
+	{
+		for (int i = 0; i < tileIDs.size(); i++)
+		{
+			// Vị trí của sprite (ith) trong ảnh texture bắt đầu từ số 1 (không phải từ số 0)
+			int sprite_ith = tileIDs[i][j];
+
+			// Khác 0 => Vị trí này có sprite
+			if (sprite_ith != 0)
+			{
+				int x_th, y_th; // Bắt đầu từ số 0
+				if (sprite_ith % column > 0) // Chia dư, tức là sprite này không nằm ở cột cuối cùng của tileset
+				{
+					x_th = sprite_ith % column - 1; // Vị trí của sprite trong tileset (sprite_ith) thì bắt đầu từ só 1, cần trừ 1 để bắt đầu từ 0 
+					y_th = sprite_ith / column;
+				}
+				else // Nếu chia không dư thì vị trí x_th của sprite nằm ở cột cuối cùng
+				{
+					x_th = column;
+					y_th = sprite_ith / column - 1;
+				}
+
+				int left = margin + x_th * (tileWidth + spacing);
+				int top = margin + y_th * (tileHeight + spacing);
+				int right = left + tileWidth - 1;
+				int bottom = top + tileHeight - 1;
+
+				// Thêm sprite vào Database
+				sprites->Add(fistSpriteId, left, top, right, bottom, texMap);
+
+				LPTILE tile = new CTile((float)i, (float)j, tileWidth, tileHeight, fistSpriteId++);
+				tiles.push_back(tile);
+			}
+		}
+			
+	}
 }
 
 
