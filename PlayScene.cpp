@@ -338,6 +338,32 @@ void CPlayScene::LoadMap(string filePath)
 	// Đọc và khởi tạo tile object (backgroud, mây, cây,...)
 	auto root = doc.RootElement();
 	ParseTile(root);
+
+	// Đọc thuộc tính Map (width)
+	root->QueryIntAttribute("width", &worldWidth);
+
+	// Chuyển đổi Object trong Object Layer
+	for (auto element = root->FirstChildElement("objectgroup"); element != NULL; element = element->NextSiblingElement("objectgroup"))
+	{
+		for (TiXmlElement* object = element->FirstChildElement("object"); object != nullptr; object = object->NextSiblingElement("object"))
+		{
+			CGameObject* gameObject = NULL;
+
+			float x, y;
+			int width, height;
+			string name;
+
+			name = object->Attribute("name");
+			object->QueryFloatAttribute("x", &x);
+			object->QueryFloatAttribute("y", &y);
+			object->QueryIntAttribute("width", &width);
+			object->QueryIntAttribute("height", &height);
+
+			//
+
+
+		}
+	}
 }
 
 void CPlayScene::Load()

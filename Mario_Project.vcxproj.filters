@@ -210,5 +210,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="scenes\world_1_1.tmx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="scenes\world_1_1.xml" />
   </ItemGroup>
 </Project>
