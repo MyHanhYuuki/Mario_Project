@@ -237,6 +237,9 @@ TileSet* CPlayScene::LoadTileSet(TiXmlElement* root)
 void CPlayScene::ParseTile(TiXmlElement* root)
 {
 	TiXmlElement* layerElement = root->FirstChildElement("layer");
+	if (layerElement == nullptr) {
+		return;
+	}
 
 	int visible;
 	layerElement->QueryIntAttribute("visible", &visible);
