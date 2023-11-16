@@ -359,12 +359,66 @@ void CPlayScene::LoadMap(string filePath)
 			object->QueryIntAttribute("width", &width);
 			object->QueryIntAttribute("height", &height);
 
-			//
+			// Không chuyển đổi Object bị ẩn
+			if (object->Attribute("visible"))
+			{
+				continue;
+			}
 
+			// Khởi tạo Object theo "Tên" (Ở TileMap)
 
+			if ((int)name.rfind("Mario") >= 0) // Object có phải tên Mario không?
+			{
+				if (player != NULL)
+				{
+					DebugOut(L"[ERROR] MARIO object was created before!\n");
+					return;
+				}
+				gameObject = new CMario(x, y);
+				player = (CMario*)gameObject;
+
+				DebugOut(L"[INFO] Player object has been created!\n");
+				MakeCameraFollowMario();
+			}
+
+			if (gameObject)
+			{
+				gameObject->SetName(name);
+				this->objects.push_back(gameObject);
+			}
 		}
 	}
 }
+
+void CPlayScene::MakeCameraFollowMario()
+{
+	//Thời điểm khởi tạo không cân Update
+	if (player == NULL) return;
+
+	// Update camera to follow mario
+	float cx, cy;
+
+	//Lấy vị trí Camera
+	CGame* game = CGame::GetInstance();
+	game->GetCamPos(cx, cy);
+
+	//Điều chỉnh vị trí camera dựa trên Mario
+	if (player->GetState() != MARIO_STATE_DIE) {
+		player->GetPosition(cx, cy);
+		cx -= game->GetBackBufferWidth() / 2;
+		cy -= game->GetBackBufferHeight() / 2;
+	}
+
+	if (cx < 0) {
+		cx = 0;
+	}
+	else if ((cx + game->GetBackBufferWidth() / 2) > worldWidth) {
+		cx = worldWidth - game->GetBackBufferWidth() / 2.0f;
+	}
+
+	CGame::GetInstance()->SetCamPos(cx, /*0.0f*/ cy);
+}
+
 
 void CPlayScene::Load()
 {
@@ -422,17 +476,8 @@ void CPlayScene::Update(DWORD dt)
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return; 
 
-	// Update camera to follow mario
-	float cx, cy;
-	player->GetPosition(cx, cy);
-
-	CGame *game = CGame::GetInstance();
-	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;
-
-	if (cx < 0) cx = 0;
-
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	// Update camera to follow Mario
+    MakeCameraFollowMario();
 
 	PurgeDeletedObjects();
 }

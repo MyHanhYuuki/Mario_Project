@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="2660" height="90" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="9">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="2660" height="90" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="12">
  <tileset firstgid="1" source="world_1_1.xml"/>
- <objectgroup id="5" name="GameObject"/>
+ <objectgroup id="5" name="GameObject">
+  <object id="11" name="Mario" x="16" y="400">
+   <point/>
+  </object>
+ </objectgroup>
  <objectgroup id="6" name="Platform">
   <object id="2" name="Brick" x="1088" y="384">
    <point/>

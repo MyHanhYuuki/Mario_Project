@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Windows.h>
 #include <d3dx10.h>
@@ -17,6 +17,7 @@ using namespace std;
 class CGameObject
 {
 protected:
+	string name;
 
 	float x; 
 	float y;
@@ -39,6 +40,9 @@ public:
 	int GetState() { return this->state; }
 	virtual void Delete() { isDeleted = true;  }
 	bool IsDeleted() { return isDeleted; }
+
+	// Thiết lập giá trị thuộc tính
+	void SetName(string name) { this->name = name; }
 
 	void RenderBoundingBox();
 
