@@ -17,7 +17,7 @@ CGameObject::CGameObject()
 	isDeleted = false;
 }
 
-void CGameObject::RenderBoundingBox()
+void CGameObject::RenderBoundingBox(float left, float top)
 {
 	D3DXVECTOR3 p(x, y, 0);
 	RECT rect;
@@ -36,6 +36,11 @@ void CGameObject::RenderBoundingBox()
 	CGame::GetInstance()->GetCamPos(cx, cy);
 
 	CGame::GetInstance()->Draw(x - cx, y - cy, bbox, &rect, BBOX_ALPHA);
+}
+
+void CGameObject::RenderBoundingBox()
+{
+	RenderBoundingBox(x, y);
 }
 
 CGameObject::~CGameObject()

@@ -8,6 +8,7 @@
 #include "Animations.h"
 #include "Sprites.h"
 #include "Collision.h"
+#include "AssetIDs.h"
 
 using namespace std;
 
@@ -25,11 +26,15 @@ protected:
 	float vx;
 	float vy;
 
+	int width;
+	int height;
+
 	int nx;	 
 
 	int state;
 
-	bool isDeleted; 
+	bool isDeleted;
+	int blockDirection;
 
 public: 
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
@@ -45,10 +50,22 @@ public:
 	void SetName(string name) { this->name = name; }
 
 	void RenderBoundingBox();
+	void RenderBoundingBox(float left, float top);
 
 	CGameObject();
 	CGameObject(float x, float y) :CGameObject() { this->x = x; this->y = y; }
-
+	CGameObject(string name, float x, float y) : CGameObject(x, y) {
+		this->name = name;
+	}
+	CGameObject(float x, float y, int width, int height) : CGameObject(x, y)
+	{
+		this->width = width;
+		this->height = height;
+	}
+	CGameObject(string name, float x, float y, int width, int height) : CGameObject(name, x, y) {
+		this->width = width;
+		this->height = height;
+	}
 
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom) = 0;
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL) {};

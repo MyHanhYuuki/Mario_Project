@@ -12,6 +12,8 @@
 #include "tinyxml.h"
 
 #include "SampleKeyEventHandler.h"
+#include "InvisiblePlatform.h"
+
 
 using namespace std;
 
@@ -379,6 +381,9 @@ void CPlayScene::LoadMap(string filePath)
 
 				DebugOut(L"[INFO] Player object has been created!\n");
 				MakeCameraFollowMario();
+			}
+			else if ((int)name.rfind("Platform") >= 0) {
+				gameObject = new CInvisiblePlatform(name, x, y, width, height);
 			}
 
 			if (gameObject)
