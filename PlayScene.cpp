@@ -71,13 +71,13 @@ void CPlayScene::_ParseSection_ASSETS(string line)
 }
 
 // Đọc section [TILEMAP] trong file config (scene0005.txt)
-void CPlayScene::_ParseSection_MAP(string line)
+void CPlayScene::_ParseSection_TILEMAP(string line)
 {
 	vector<string> tokens = split(line);
 
 	if (tokens.size() < 1) return;
 
-	LoadMap(tokens[0]);
+	LoadTileMap(tokens[0]);
 }
 
 void CPlayScene::_ParseSection_ANIMATIONS(string line)
@@ -236,7 +236,7 @@ TileSet* CPlayScene::LoadTileSet(TiXmlElement* root)
 }
 
 // Load tag của layer vào grid 2D [width, heigth]
-void CPlayScene::ParseTile(TiXmlElement* root)
+void CPlayScene::LoadTile(TiXmlElement* root)
 {
 	TiXmlElement* layerElement = root->FirstChildElement("layer");
 	if (layerElement == nullptr) {
@@ -327,7 +327,7 @@ void CPlayScene::ParseTile(TiXmlElement* root)
 }
 
 
-void CPlayScene::LoadMap(string filePath)
+void CPlayScene::LoadTileMap(string filePath)
 {
 	// Đọc file tml và tải vào bộ nhớ
 	TiXmlDocument doc(filePath.c_str()); 
@@ -339,7 +339,7 @@ void CPlayScene::LoadMap(string filePath)
 
 	// Đọc và khởi tạo tile object (backgroud, mây, cây,...)
 	auto root = doc.RootElement();
-	ParseTile(root);
+	LoadTile(root);
 
 	// Đọc thuộc tính Map (width)
 	root->QueryIntAttribute("width", &worldWidth);
@@ -452,7 +452,7 @@ void CPlayScene::Load()
 		switch (section)
 		{ 
 			case SCENE_SECTION_ASSETS: _ParseSection_ASSETS(line); break;
-			case SCENE_SECTION_TILEMAP: _ParseSection_MAP(line); break;
+			case SCENE_SECTION_TILEMAP: _ParseSection_TILEMAP(line); break;
 			case SCENE_SECTION_OBJECTS: _ParseSection_OBJECTS(line); break;
 		}
 	}
@@ -489,6 +489,8 @@ void CPlayScene::Update(DWORD dt)
 
 void CPlayScene::Render()
 {
+	for (int i = 0; i < tiles.size(); i++)
+		tiles[i]->Render();
 	for (int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 }
