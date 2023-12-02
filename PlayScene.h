@@ -53,6 +53,8 @@ public:
 	void Clear();
 	void PurgeDeletedObjects();
 
+	void Reset();
+
 	void MakeCameraFollowMario();
 
 	static bool IsGameObjectDeleted(const LPGAMEOBJECT& o);
